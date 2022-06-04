@@ -102,13 +102,12 @@ unsafe fn send_diag_msg(sockfd: c_int, family: __u8, protocol: __u8) -> Result<(
         states: TCPF_ALL,
         id: Default::default(),
     };
-    let mut nlh = nlmsghdr {
-        nlmsg_len: NLMSG_LENGTH!(size_of::<inet_diag_req_v2>()) as __u32,
-        nlmsg_type: SOCK_DIAG_BY_FAMILY,
-        nlmsg_flags: (NLM_F_DUMP | NLM_F_REQUEST) as u16,
-        nlmsg_seq: 0,
-        nlmsg_pid: 0,
-    };
+    let mut nlh: nlmsghdr = std::mem::zeroed();
+    nlh.nlmsg_len = NLMSG_LENGTH!(size_of::<inet_diag_req_v2>()) as __u32;
+    nlh.nlmsg_type = SOCK_DIAG_BY_FAMILY;
+    nlh.nlmsg_flags = (NLM_F_DUMP | NLM_F_REQUEST) as u16;
+    nlh.nlmsg_seq = 0;
+    nlh.nlmsg_pid = 0;
     let mut iov = [
         iovec {
             iov_base: &mut nlh as *mut _ as *mut c_void,
